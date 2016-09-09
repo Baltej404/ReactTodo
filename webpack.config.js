@@ -1,7 +1,15 @@
 var webpack = require('webpack');
 var path = require('path');
+var envFile = require('node-env-file');
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
+try {
+  envFile(path.join(__dirname, 'config/' + process.env.NODE_ENV + '.env'));
+} catch (e) {
+
+}
+
 module.exports = {
   entry: [
     'script!jquery/dist/jquery.min.js',
@@ -20,14 +28,23 @@ module.exports = {
       compressor: {
         warnings: false
       }
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        API_KEY: JSON.stringify(process.env.API_KEY),
+        AUTH_DOMAIN: JSON.stringify(process.env.AUTH_DOMAIN),
+        DATABASE_URL: JSON.stringify(process.env.DATABASE_URL),
+        STORAGE_BUCKET: JSON.stringify(process.env.STORAGE_BUCKET)
+      }
     })
   ],
   output: {
-    path: __dirname,
+    path: process.cwd(),
     filename: './public/bundle.js'
   },
   resolve: {
-    root: __dirname,
+    root: process.cwd(),
     modulesDirectories: [
       'node_modules',
       './app/components',
@@ -36,9 +53,9 @@ module.exports = {
     alias: {
       app: 'app',
       applicationStyles: 'app/styles/app.scss',
-      actions: path.resolve(process.cwd(),'app/actions/actions.jsx'),
-      reducers: path.resolve(process.cwd(), 'app/reducers/reducers.jsx'),
-      configureStore: path.resolve(process.cwd(), 'app/store/configureStore.jsx')
+      actions: 'app/actions/actions.jsx',
+      reducers: 'app/reducers/reducers.jsx',
+      configureStore: 'app/store/configureStore.jsx'
     },
     extensions: ['', '.js', '.jsx']
   },
